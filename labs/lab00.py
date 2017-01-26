@@ -6,5 +6,7 @@ def twenty_seventeen():
     2017
     >>> twenty_seventeen() + twenty_seventeen()
     4034
+    >>> twenty_seventeen() % 2
+    1
     """
     return int((float("1" + "0" + "0" + "9" + "." + "5") - 1) * 2)
