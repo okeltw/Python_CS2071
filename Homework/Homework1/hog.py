@@ -9,11 +9,31 @@ GOAL_SCORE = 100 # The goal of Hog is to score 100 points.
 ######################
 
 def roll_dice(num_rolls, dice=six_sided):
+    """
+    >>> roll_dice(1,make_test_dice(4, 2, 1, 3))
+    4
+    >>> roll_dice(2,make_test_dice(4, 2, 1, 3))
+    6
+    >>> roll_dice(3,make_test_dice(4, 2, 1, 3))
+    1
+    >>> roll_dice(4,make_test_dice(4, 2, 1, 3))
+    1
+    """
+
     # These assert statements ensure that num_rolls is a positive integer.
     assert type(num_rolls) == int, 'num_rolls must be an integer.'
     assert num_rolls > 0, 'Must roll at least once.'
     # BEGIN Question 1
-    "*** REPLACE THIS LINE ***"
+    total = 0
+    for i in range(num_rolls):
+        roll = dice()
+
+        if roll == 1:
+            return 1
+        else:
+            total += roll
+
+    return total
     # END Question 1
 
 
