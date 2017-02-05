@@ -38,6 +38,26 @@ def roll_dice(num_rolls, dice=six_sided):
 
 
 def take_turn(num_rolls, opponent_score, dice=six_sided):
+    """
+    >>> take_turn(2, 0, make_test_dice(4, 6, 1))
+    10
+    >>> take_turn(3, 0, make_test_dice(4, 6, 1))
+    1
+    >>> take_turn(0, 35)
+    6
+    >>> take_turn(0, 71)
+    8
+    >>> take_turn(0, 7)
+    8
+    >>> take_turn(0, 0)
+    1
+    >>> take_turn(0, 9)
+    10
+    >>> take_turn(2, 0, make_test_dice(6))
+    12
+    >>> take_turn(0, 50)
+    6
+    """
     """Simulate a turn rolling NUM_ROLLS dice, which may be 0 (Free bacon).
 
     num_rolls:       The number of dice rolls that will be made.
@@ -46,18 +66,33 @@ def take_turn(num_rolls, opponent_score, dice=six_sided):
     """
     assert type(num_rolls) == int, 'num_rolls must be an integer.'
     assert num_rolls >= 0, 'Cannot roll a negative number of dice.'
-    assert num_rolls <= 10, 'Cannot roll more than 10 dice.'
     assert opponent_score < 100, 'The game should be over.'
     # BEGIN Question 2
-    "*** REPLACE THIS LINE ***"
+    if num_rolls == 0:
+        digits = [int(i) for i in str(opponent_score)]
+        return max(digits)+1
+
+    return roll_dice(num_rolls, dice)
     # END Question 2
 
 def select_dice(score, opponent_score):
     """Select six-sided dice unless the sum of SCORE and OPPONENT_SCORE is a
     multiple of 7, in which case select four-sided dice (Hog wild).
+
+    >>> select_dice(4, 24) == four_sided
+    True
+    >>> select_dice(16, 64) == four_sided
+    False
+    >>> select_dice(0, 0) == four_sided
+    True
+    >>> select_dice(50, 80) == four_sided
+    False
     """
     # BEGIN Question 3
-    "*** REPLACE THIS LINE ***"
+    if (score + opponent_score) % 7 == 0:
+        return four_sided
+    else:
+        return six_sided
     # END Question 3
 
 def is_swap(score0, score1):
@@ -66,12 +101,31 @@ def is_swap(score0, score1):
 
     Swaps occur when the last two digits of the first score are the reverse
     of the last two digits of the second score.
+
+    >>> is_swap(19, 91)
+    True
+    >>> is_swap(20, 40)
+    False
+    >>> is_swap(41, 14)
+    True
+    >>> is_swap(23, 42)
+    False
+    >>> is_swap(55, 55)
+    True
+    >>> is_swap(114, 41) # We check the last two digits
+    True
     """
     # BEGIN Question 4
-    "*** REPLACE THIS LINE ***"
+    dig0 = [int(i) for i in str(score0)]
+    dig1 = [int(j) for j in str(score1)]
+
+    x = len(dig0)
+    y = len(dig1)
+
+    return ((dig0[x-1] == dig1[y-2]) and (dig0[x-2] == dig1[y-1]))
     # END Question 4
 
-
+# i just used an xor
 def other(who):
     """Return the other player, for a player WHO numbered 0 or 1.
 
@@ -97,7 +151,18 @@ def play(strategy0, strategy1, score0=0, score1=0, goal=GOAL_SCORE):
     """
     who = 0  # Which player is about to take a turn, 0 (first) or 1 (second)
     # BEGIN Question 5
-    "*** REPLACE THIS LINE ***"
+    while score0 < goal and score1 < goal:
+        dice = select_dice(score0, score1)
+
+        if not who: # if player 0
+            score0 += take_turn(strategy0(score0, score1), score1, dice)
+        else:
+            score1 += take_turn(strategy1(score1, score0), score0, dice)
+
+        if is_swap(score0, score1):
+            score0, score1 = score1, score0
+
+        who = who^1 #who XOR 1 => bit flip
     # END Question 5
     return score0, score1
 

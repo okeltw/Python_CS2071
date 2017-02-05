@@ -18,20 +18,18 @@ def roll_dice(num_rolls, dice=six_sided):
     # These assert statements ensure that num_rolls is a positive integer.
     assert type(num_rolls) == int, 'num_rolls must be an integer.'
     assert num_rolls > 0, 'Must roll at least once.'
-    # BEGIN PROBLEM 1
-    "*** REPLACE THIS LINE ***"
-    # END PROBLEM 1
+    # BEGIN Question 1
+    total = 0
+    for i in range(num_rolls):
+        roll = dice()
 
+        if roll == 1:
+            return 1
+        else:
+            total += roll
 
-def free_bacon(opponent_score):
-    """Return the points scored from rolling 0 dice (Free Bacon)."""
-    # BEGIN PROBLEM 2
-    "*** REPLACE THIS LINE ***"
-    # END PROBLEM 2
-
-
-# Write your prime functions here!
-
+    return total
+    # END Question 1
 
 def take_turn(num_rolls, opponent_score, dice=six_sided):
     """Simulate a turn rolling NUM_ROLLS dice, which may be 0 (Free Bacon).
@@ -47,25 +45,38 @@ def take_turn(num_rolls, opponent_score, dice=six_sided):
     assert num_rolls >= 0, 'Cannot roll a negative number of dice in take_turn.'
     assert num_rolls <= 10, 'Cannot roll more than 10 dice.'
     assert opponent_score < 100, 'The game should be over.'
-    # BEGIN PROBLEM 2
-    "*** REPLACE THIS LINE ***"
-    # END PROBLEM 2
+    # BEGIN Question 2
+    if num_rolls == 0:
+        digits = [int(i) for i in str(opponent_score)]
+        return max(digits)+1
+
+    return roll_dice(num_rolls, dice)
+    # END Question 2
 
 
 def select_dice(score, opponent_score):
     """Select six-sided dice unless the sum of SCORE and OPPONENT_SCORE is a
     multiple of 7, in which case select four-sided dice (Hog Wild).
     """
-    # BEGIN PROBLEM 3
-    "*** REPLACE THIS LINE ***"
-    # END PROBLEM 3
+    # BEGIN Question 3
+    if (score + opponent_score) % 7 == 0:
+        return four_sided
+    else:
+        return six_sided
+    # END Question 3
 
 def is_swap(score0, score1):
     """Returns whether one of the scores is double the other.
     """
-    # BEGIN PROBLEM 4
-    "*** REPLACE THIS LINE ***"
-    # END PROBLEM 4
+    # BEGIN Question 4
+    dig0 = [int(i) for i in str(score0)]
+    dig1 = [int(j) for j in str(score1)]
+
+    x = len(dig0)
+    y = len(dig1)
+
+    return ((dig0[x-1] == dig1[y-2]) and (dig0[x-2] == dig1[y-1]))
+    # END Question 4
 
 def other(player):
     """Return the other player, for a player PLAYER numbered 0 or 1.
@@ -91,10 +102,21 @@ def play(strategy0, strategy1, score0=0, score1=0, goal=GOAL_SCORE):
     score0   :  The starting score for Player 0
     score1   :  The starting score for Player 1
     """
-    player = 0  # Which player is about to take a turn, 0 (first) or 1 (second)
-    # BEGIN PROBLEM 5
-    "*** REPLACE THIS LINE ***"
-    # END PROBLEM 5
+    who = 0  # Which player is about to take a turn, 0 (first) or 1 (second)
+        # BEGIN Question 5
+    while score0 < goal and score1 < goal:
+        dice = select_dice(score0, score1)
+
+        if not who: # if player 0
+            score0 += take_turn(strategy0(score0, score1), score1, dice)
+        else:
+            score1 += take_turn(strategy1(score1, score0), score0, dice)
+
+        if is_swap(score0, score1):
+            score0, score1 = score1, score0
+
+        who = who^1 #who XOR 1 => bit flip
+    # END Question 5
     return score0, score1
 
 
@@ -189,7 +211,14 @@ def make_averaged(fn, num_samples=1000):
     3.75
     """
     # BEGIN PROBLEM 7
-    "*** REPLACE THIS LINE ***"
+    def helper(*args):
+        total = 0
+        for it in range(num_samples):
+            total += fn(*args)
+
+        return total / 1000
+
+    return helper
     # END PROBLEM 7
 
 
@@ -203,7 +232,12 @@ def max_scoring_num_rolls(dice=six_sided, num_samples=1000):
     10
     """
     # BEGIN PROBLEM 8
-    "*** REPLACE THIS LINE ***"
+    average = make_averaged(roll_dice, num_samples)
+    results = [0,0,0,0,0,0,0,0,0,0]
+    for it in [1,2,3,4,5,6,7,8,9,10]:
+        results[it-1] = average(it, dice)
+
+    return results.index(max(results))+1
     # END PROBLEM 8
 
 
