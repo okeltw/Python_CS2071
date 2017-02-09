@@ -140,10 +140,10 @@ def run_experiments():
         print('swap_strategy win rate:', average_win_rate(swap_strategy(score, opponent_score, margin, num_rolls)))
 
     if True:
-        wr = average_win_rate(final_strategy(score, opponent_score))
+        wr = 0
         for x in range(0,10):
             wr += average_win_rate(final_strategy(score, opponent_score))
-            wr /= 2
+        wr /= x
         print('final_strategy win rate:', wr)
 
     "*** You may add additional experiments as you wish ***"
@@ -182,7 +182,7 @@ def swap_strategy(score, opponent_score, margin=8, num_rolls=5):
     # END Question 9
 
 
-def final_strategy(score, opponent_score, dice=six_sided):
+def final_strategy(score, opponent_score):
     """Write a brief description of your final strategy.
 
     The final strategy alternates between conservative an aggressive, based on
@@ -201,19 +201,23 @@ def final_strategy(score, opponent_score, dice=six_sided):
     #max_four_sided = max_scoring_num_rolls(four_sided)
     #max_six_sided = max_scoring_num_rolls(six_sided)
     def strategy(ignA, ignB):
-        losing = score < opponent_score
-        post_bacon = score + free_bacon(opponent_score)
-        dice = select_dice(score, opponent_score) == four_sided
-        will_be_four = select_dice(post_bacon, opponent_score) == four_sided
-        swap = is_swap(post_bacon, opponent_score)
+        losing =        score < opponent_score
+        post_bacon =    score + free_bacon(opponent_score)
+        dice =          select_dice(score, opponent_score)
+        will_be_four =  select_dice(post_bacon, opponent_score) == four_sided
+        swap =          is_swap(post_bacon, opponent_score)
 
-        if post_bacon >= 100 or will_be_four:
+        if (post_bacon >= 100 or will_be_four) and (losing or (not losing and not swap)):
             return 0
 
         if dice == four_sided:
-            num_rolls = 4
+            num_rolls = 2
         else:
-            num_rolls = 6
+            num_rolls = 4
+
+        #num_rolls = bacon_strategy(score, opponent_score, 8, num_rolls)(score, opponent_score)
+        if not losing and score - opponent_score > 20:
+            num_rolls -= 1
 
         if not losing:
             return num_rolls
@@ -221,7 +225,8 @@ def final_strategy(score, opponent_score, dice=six_sided):
             if swap and not post_bacon > opponent_score:
                 return 0
             else:
-                return num_rolls
+                return num_rolls+1
+
 
     return strategy
     # END Question 10
