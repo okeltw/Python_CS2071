@@ -1,6 +1,43 @@
+
+##########################
+# Command Line Interface #
+##########################
+
+# Note: Functions in this section do not need to be changed.  They use features
+#       of Python not yet covered in the course.
+
+from hog import roll_dice
+from dice import *
+import random
+
+def run(*args):
+    """Read in the command-line argument and calls corresponding functions.
+
+    This function uses Python syntax/techniques not yet covered in this course.
+    """
+    import argparse
+    parser = argparse.ArgumentParser(description="Play Hog")
+    parser.add_argument('--final', action='store_true',
+                        help='Display the final_strategy win rate against always_roll(5)')
+    parser.add_argument('--run_experiments', '-r', action='store_true',
+                        help='Runs strategy experiments')
+    args = parser.parse_args()
+
+    if args.run_experiments:
+        run_experiments()
+    elif args.final:
+        from hog_eval import final_win_rate
+        win_rate = final_win_rate()
+        print('Your final_strategy win rate is')
+        print('    ', win_rate)
+        print('(or {}%)'.format(round(win_rate * 100, 2)))
+
 #######################
 # Phase 2: Strategies #
 #######################
+
+from hog import *
+from dice import *
 
 def always_roll(n):
     """Return a strategy that always rolls N dice.
@@ -36,11 +73,18 @@ def make_averaged(fn, num_samples=1000):
 
     In this last example, two different turn scenarios are averaged.
     - In the first, the player rolls a 3 then a 1, receiving a score of 1.
-    - In the other, the player rolls a 5 and 6, scoring 11.
+    - In the other, the player rolls a 5 and 6ma, scoring 11.
     Thus, the average value is 6.0.
     """
     # BEGIN Question 6
-    "*** REPLACE THIS LINE ***"
+    def helper(*args):
+        total = 0
+        for it in range(num_samples):
+            total += fn(*args)
+
+        return total / 1000
+
+    return helper
     # END Question 6
 
 def max_scoring_num_rolls(dice=six_sided, num_samples=1000):
@@ -53,7 +97,12 @@ def max_scoring_num_rolls(dice=six_sided, num_samples=1000):
     10
     """
     # BEGIN Question 7
-    "*** REPLACE THIS LINE ***"
+    average = make_averaged(roll_dice, num_samples)
+    results = [0] * 10
+    for it in range(10):
+        results[it] = average(it+1, dice)
+
+    return results.index(max(results))+1
     # END Question 7
 
 def winner(strategy0, strategy1):
@@ -72,6 +121,9 @@ def average_win_rate(strategy, baseline=always_roll(5)):
 
 def run_experiments():
     """Run a series of strategy experiments and report results."""
+    score = 0 #random.randint(0,100)
+    opponent_score = 0 #randint(0,100)
+
     if True: # Change to False when done finding max_scoring_num_rolls
         six_sided_max = max_scoring_num_rolls(six_sided)
         print('Max scoring num rolls for six-sided dice:', six_sided_max)
@@ -79,14 +131,20 @@ def run_experiments():
         print('Max scoring num rolls for four-sided dice:', four_sided_max)
 
     if False: # Change to True to test always_roll(8)
-        print('always_roll(8) win rate:', average_win_rate(always_roll(8)))
+        print('always_roll(8) win rate:', average_win_rate(always_roll(5)))
 
     if False: # Change to True to test bacon_strategy
-        print('bacon_strategy win rate:', average_win_rate(bacon_strategy))
+        print('bacon_strategy win rate:', average_win_rate(bacon_strategy(score, opponent_score, margin, num_rolls)))
 
     if False: # Change to True to test swap_strategy
-        print('swap_strategy win rate:', average_win_rate(swap_strategy))
+        print('swap_strategy win rate:', average_win_rate(swap_strategy(score, opponent_score, margin, num_rolls)))
 
+    if True:
+        wr = average_win_rate(final_strategy(score, opponent_score))
+        for x in range(0,10):
+            wr += average_win_rate(final_strategy(score, opponent_score))
+            wr /= 2
+        print('final_strategy win rate:', wr)
 
     "*** You may add additional experiments as you wish ***"
 
@@ -97,8 +155,13 @@ def bacon_strategy(score, opponent_score, margin=8, num_rolls=5):
     and rolls NUM_ROLLS otherwise.
     """
     # BEGIN Question 8
-    "*** REPLACE THIS LINE ***"
-    return 5 # Replace this statement
+    def strategy(ignA, ignB):
+        if free_bacon(opponent_score) >= margin:
+            return 0
+        else:
+            return num_rolls
+
+    return strategy
     # END Question 8
 
 def swap_strategy(score, opponent_score, margin=8, num_rolls=5):
@@ -108,49 +171,59 @@ def swap_strategy(score, opponent_score, margin=8, num_rolls=5):
     otherwise.
     """
     # BEGIN Question 9
-    "*** REPLACE THIS LINE ***"
-    return 5 # Replace this statement
+    def strategy(ignA, ignB):
+        post_bacon = score + free_bacon(opponent_score)
+        if opponent_score > post_bacon and is_swap(post_bacon, opponent_score):
+            return 0
+        else:
+            return bacon_strategy(score, opponent_score, margin, num_rolls)(score, opponent_score)
+
+    return strategy
     # END Question 9
 
 
-def final_strategy(score, opponent_score):
+def final_strategy(score, opponent_score, dice=six_sided):
     """Write a brief description of your final strategy.
 
-    *** YOUR DESCRIPTION HERE ***
+    The final strategy alternates between conservative an aggressive, based on
+    score differential.
+
+    If I am winning by a large margin (30 points), default to free_bacon if it
+    does not cause a swap.
+
+    If I am winning by a smaller margin, use more regular rolls if appropriate.
+
+    If I am losing, seek to invoke swap.
+
+    The number of dice used is based on the score differential.
     """
     # BEGIN Question 10
-    "*** REPLACE THIS LINE ***"
-    return 5 # Replace this statement
+    #max_four_sided = max_scoring_num_rolls(four_sided)
+    #max_six_sided = max_scoring_num_rolls(six_sided)
+    def strategy(ignA, ignB):
+        losing = score < opponent_score
+        post_bacon = score + free_bacon(opponent_score)
+        dice = select_dice(score, opponent_score) == four_sided
+        will_be_four = select_dice(post_bacon, opponent_score) == four_sided
+        swap = is_swap(post_bacon, opponent_score)
+
+        if post_bacon >= 100 or will_be_four:
+            return 0
+
+        if dice == four_sided:
+            num_rolls = 2
+        else:
+            num_rolls = 6
+
+        if not losing:
+            return num_rolls
+        else:
+            if swap and not post_bacon > opponent_score:
+                return 0
+            else:
+                return num_rolls
+
+    return strategy
     # END Question 10
 
-
-##########################
-# Command Line Interface #
-##########################
-
-# Note: Functions in this section do not need to be changed.  They use features
-#       of Python not yet covered in the course.
-
-
-@main
-def run(*args):
-    """Read in the command-line argument and calls corresponding functions.
-
-    This function uses Python syntax/techniques not yet covered in this course.
-    """
-    import argparse
-    parser = argparse.ArgumentParser(description="Play Hog")
-    parser.add_argument('--final', action='store_true',
-                        help='Display the final_strategy win rate against always_roll(5)')
-    parser.add_argument('--run_experiments', '-r', action='store_true',
-                        help='Runs strategy experiments')
-    args = parser.parse_args()
-
-    if args.run_experiments:
-        run_experiments()
-    elif args.final:
-        from hog_eval import final_win_rate
-        win_rate = final_win_rate()
-        print('Your final_strategy win rate is')
-        print('    ', win_rate)
-        print('(or {}%)'.format(round(win_rate * 100, 2)))
+if __name__=="__main__": run()

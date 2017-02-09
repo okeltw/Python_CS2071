@@ -2,6 +2,7 @@
 
 from dice import four_sided, six_sided, make_test_dice
 
+
 GOAL_SCORE = 100 # The goal of Hog is to score 100 points.
 
 ######################
@@ -69,11 +70,14 @@ def take_turn(num_rolls, opponent_score, dice=six_sided):
     assert opponent_score < 100, 'The game should be over.'
     # BEGIN Question 2
     if num_rolls == 0:
-        digits = [int(i) for i in str(opponent_score)]
-        return max(digits)+1
+        return free_bacon(opponent_score)
 
     return roll_dice(num_rolls, dice)
     # END Question 2
+
+def free_bacon(opponent_score):
+    digits = [int(i) for i in str(opponent_score)]
+    return max(digits)+1
 
 def select_dice(score, opponent_score):
     """Select six-sided dice unless the sum of SCORE and OPPONENT_SCORE is a
@@ -183,3 +187,53 @@ def always_roll(n):
     def strategy(score, opponent_score):
         return n
     return strategy
+
+### Extra Credit ###
+
+def make_averaged(fn, num_samples=1000):
+    """Return a function that returns the average_value of FN when called.
+
+    To implement this function, you will have to use *args syntax, a new Python
+    feature introduced in this project.  See the project description.
+
+    >>> dice = make_test_dice(3, 1, 5, 6)
+    >>> averaged_dice = make_averaged(dice, 1000)
+    >>> averaged_dice()
+    3.75
+    >>> make_averaged(roll_dice, 1000)(2, dice)
+    6.0
+
+    In this last example, two different turn scenarios are averaged.
+    - In the first, the player rolls a 3 then a 1, receiving a score of 1.
+    - In the other, the player rolls a 5 and 6, scoring 11.
+    Thus, the average value is 6.0.
+    """
+    # BEGIN Question 6
+    def helper(*args):
+        total = 0
+        for it in range(num_samples):
+            total += fn(*args)
+
+        return total / 1000
+
+    return helper
+    # END Question 6
+
+
+def max_scoring_num_rolls(dice=six_sided, num_samples=1000):
+    """Return the number of dice (1 to 10) that gives the highest average turn
+    score by calling roll_dice with the provided DICE over NUM_SAMPLES times.
+    Assume that dice always return positive outcomes.
+
+    >>> dice = make_test_dice(3)
+    >>> max_scoring_num_rolls(dice)
+    10
+    """
+    # BEGIN Question 7
+    average = make_averaged(roll_dice, num_samples)
+    results = [0] * 10
+    for it in range(10):
+        results[it] = average(it+1, dice)
+
+    return results.index(max(results))+1
+    # END Question 7
