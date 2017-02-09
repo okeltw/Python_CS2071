@@ -26,7 +26,7 @@ def run(*args):
     if args.run_experiments:
         run_experiments()
     elif args.final:
-        from hog_eval import final_win_rate
+        #from hog_eval import final_win_rate
         win_rate = final_win_rate()
         print('Your final_strategy win rate is')
         print('    ', win_rate)
@@ -130,20 +130,18 @@ def run_experiments():
         four_sided_max = max_scoring_num_rolls(four_sided)
         print('Max scoring num rolls for four-sided dice:', four_sided_max)
 
-    if False: # Change to True to test always_roll(8)
-        print('always_roll(8) win rate:', average_win_rate(always_roll(5)))
+    if True: # Change to True to test always_roll(8)
+        print('always_roll(5) win rate:', average_win_rate(always_roll(5)))
 
-    if False: # Change to True to test bacon_strategy
-        print('bacon_strategy win rate:', average_win_rate(bacon_strategy(score, opponent_score, margin, num_rolls)))
+    if True: # Change to True to test bacon_strategy
+        print('bacon_strategy win rate:', average_win_rate(bacon_strategy(score, opponent_score)))
 
-    if False: # Change to True to test swap_strategy
-        print('swap_strategy win rate:', average_win_rate(swap_strategy(score, opponent_score, margin, num_rolls)))
+    if True: # Change to True to test swap_strategy
+        print('swap_strategy win rate:', average_win_rate(swap_strategy(score, opponent_score)))
 
     if True:
-        wr = 0
-        for x in range(0,10):
-            wr += average_win_rate(final_strategy(score, opponent_score))
-        wr /= x
+        wr = average_win_rate(final_strategy(score, opponent_score))
+
         print('final_strategy win rate:', wr)
 
     "*** You may add additional experiments as you wish ***"
@@ -155,7 +153,7 @@ def bacon_strategy(score, opponent_score, margin=8, num_rolls=5):
     and rolls NUM_ROLLS otherwise.
     """
     # BEGIN Question 8
-    def strategy(ignA, ignB):
+    def strategy(score, opponent_score):
         if free_bacon(opponent_score) >= margin:
             return 0
         else:
@@ -171,7 +169,7 @@ def swap_strategy(score, opponent_score, margin=8, num_rolls=5):
     otherwise.
     """
     # BEGIN Question 9
-    def strategy(ignA, ignB):
+    def strategy(score, opponent_score):
         post_bacon = score + free_bacon(opponent_score)
         if opponent_score > post_bacon and is_swap(post_bacon, opponent_score):
             return 0
@@ -198,37 +196,49 @@ def final_strategy(score, opponent_score):
     The number of dice used is based on the score differential.
     """
     # BEGIN Question 10
-    #max_four_sided = max_scoring_num_rolls(four_sided)
-    #max_six_sided = max_scoring_num_rolls(six_sided)
-    def strategy(ignA, ignB):
-        losing =        score < opponent_score
+    def strategy(score, opponent_score):
+        losing =        score <= opponent_score
         post_bacon =    score + free_bacon(opponent_score)
         dice =          select_dice(score, opponent_score)
         will_be_four =  select_dice(post_bacon, opponent_score) == four_sided
         swap =          is_swap(post_bacon, opponent_score)
 
-        if (post_bacon >= 100 or will_be_four) and (losing or (not losing and not swap)):
+        if post_bacon >= 100 and not swap:
             return 0
 
-        if dice == four_sided:
-            num_rolls = 2
-        else:
-            num_rolls = 4
 
-        #num_rolls = bacon_strategy(score, opponent_score, 8, num_rolls)(score, opponent_score)
-        if not losing and score - opponent_score > 20:
-            num_rolls -= 1
+        if dice == four_sided:
+            num_rolls = 4
+        elif dice == six_sided:
+            num_rolls =  6
+
+        if not losing and score - opponent_score > 15:
+            num_rolls -= 2
+        elif losing and opponent_score - score > 15:
+            num_rolls += 1
 
         if not losing:
-            return num_rolls
-        else:
-            if swap and not post_bacon > opponent_score:
+            if swap:
+                return num_rolls
+            elif will_be_four:
                 return 0
             else:
-                return num_rolls+1
+                return  bacon_strategy(score, opponent_score, 8, num_rolls)(score, opponent_score)
+        else:
+            if (swap and not post_bacon > opponent_score) or will_be_four:
+                return 0
+            else:
+                return bacon_strategy(score, opponent_score, 8, num_rolls)(score, opponent_score)
 
 
     return strategy
     # END Question 10
+
+def final_win_rate():
+    wr = 0
+    for x in range(0,1000):
+        wr += average_win_rate(final_strategy(0,0))
+
+    return wr / x
 
 if __name__=="__main__": run()
