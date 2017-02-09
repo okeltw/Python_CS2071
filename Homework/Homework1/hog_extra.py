@@ -211,7 +211,7 @@ def final_strategy(score, opponent_score, dice=six_sided):
             return 0
 
         if dice == four_sided:
-            num_rolls = 2
+            num_rolls = 4
         else:
             num_rolls = 6
 
