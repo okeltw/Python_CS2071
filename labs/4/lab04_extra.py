@@ -19,7 +19,15 @@ def merge(lst1, lst2):
     >>> merge([5, 7], [2, 4, 6])
     [2, 4, 5, 6, 7]
     """
-    "*** YOUR CODE HERE ***"
+
+    # Bootstrap: if either list is empty
+    if not lst1 or not lst2:
+        return lst1 + lst2
+
+    if lst1[0] < lst2[0]:
+        return [lst1[0]] + merge(lst1[1:], lst2)
+    else:
+        return [lst2[0]] + merge(lst1, lst2[1:])
 
 
 # Q13
@@ -33,7 +41,10 @@ def mergesort(seq):
     >>> mergesort([1])   # sorting a one-element list
     [1]
     """
-    "*** YOUR CODE HERE ***"
+    if len(seq) < 2:
+        return seq
+    half = len(seq)//2
+    return merge( mergesort(seq[:half]), mergesort(seq[half:]) )
 
 
 # Q14
@@ -43,9 +54,8 @@ def coords(fn, seq, lower, upper):
     >>> fn = lambda x: x**2
     >>> coords(fn, seq, 1, 9)
     [[-2, 4], [1, 1], [3, 9]]
-    """ 
-    "*** YOUR CODE HERE ***"
-    return ______
+    """
+    return [[x, fn(x)] for x in seq if fn(x) >= lower and fn(x) <= upper]
 
 
 # Q15
@@ -63,8 +73,7 @@ def deck(suits, numbers):
     >>> deck(['S', 'C'], [])
     []
     """
-    "*** YOUR CODE HERE ***"
-    return ______
+    return [[s, n] for s in suits for n in numbers]
 
 
 ################
@@ -90,7 +99,14 @@ def counter(message):
     1
     """
     word_list = message.split()
-    "*** YOUR CODE HERE ***"
+    count = {}
+    for word in word_list:
+        if word in count:
+            count[word] += 1
+        else:
+            count[word] = 1
+
+    return count
 
 
 # Q17
@@ -102,4 +118,6 @@ def replace_all(d, x, y):
     >>> d == {'foo': 2, 'bar': 'poof', 'garply': 'poof', 'xyzzy': 99}
     True
     """
-    "*** YOUR CODE HERE ***"
+    for item in d:
+        if d[item] == x:
+            d[item] = y
