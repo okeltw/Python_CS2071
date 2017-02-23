@@ -45,14 +45,14 @@ def group_by_centroid(restaurants, centroids):
     nearest to a corresponding centroid in centroids. Each item in
     restaurants should appear once in the result, along with the other
     restaurants closest to the same centroid.
+
     """
     # BEGIN Question 4
-    "*** REPLACE THIS LINE ***"
-    #restaurant_location(restaurant) # use to group
-    #restuarant_name(restaurant) # list of lists of these to be returned
-    
-    # may work, need to return lists tho, this just lists em separately
-    #for c in cs: map_and_filter(rs, lambda x: x['name'],lambda y: find_closest(y['location'],cs) == c)
+    return map_and_filter(centroids, 
+        lambda z: map_and_filter(restaurants, 
+            lambda x: x, 
+            lambda y: find_closest(restaurant_location(y),centroids) == z),
+            lambda n: True)
     # END Question 4
 
 
@@ -180,5 +180,15 @@ def test():
     [-2, 0]
     >>> find_closest([0, 0], [[1000, 1000]])
     [1000, 1000]
+    >>> r1 = make_restaurant('A', [-10, 2], [], 2, [make_review('A', 4),])
+    >>> r2 = make_restaurant('B', [-9, 1], [], 3, [make_review('B', 5),make_review('B', 3.5),])
+    >>> r3 = make_restaurant('C', [4, 2], [], 1, [make_review('C', 5) ])
+    >>> r4 = make_restaurant('D', [-2, 6], [], 4, [make_review('D', 2)])
+    >>> r5 = make_restaurant('E', [4, 2], [], 3.5, [make_review('E', 2.5), make_review('E', 3),])
+    >>> c1 = [0, 0]
+    >>> c2 = [3, 4]
+    >>> groups = group_by_centroid([r1, r2, r3, r4, r5], [c1, c2]) # correct grouping is  [[r1, r2], [r3, r4, r5]])
+    >>> [list (map (lambda r: r ['name'], c)) for c in groups]
+    [['A', 'B'], ['C', 'D', 'E']]
 
     """
