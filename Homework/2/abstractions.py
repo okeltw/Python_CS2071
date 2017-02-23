@@ -1,6 +1,6 @@
 """Data Abstractions"""
 
-from utils import mean
+from utils import mean, map_and_filter
 
 #############################
 # Phase 1: Data Abstraction #
@@ -59,18 +59,19 @@ def user_rating(user, restaurant_name):
 
 # Restaurants
 
-def make_restaurant(name, location, categories, price, reviews):
+def make_restaurant(name, location, categories, price, reviews=[]):
     """Return a restaurant data abstraction."""
     # You may change this starter implementation however you wish, including
     # adding more items to the dictionary below.
     # BEGIN Question 1
-    "*** REPLACE THIS LINE ***"
+    "*** REPLACE THIS LINE ***" # no need...
     # END Question 1
     return {
         'name': name,
         'location': location,
         'categories': categories,
         'price': price,
+        'reviews': reviews
     }
 
 def restaurant_name(restaurant):
@@ -94,7 +95,7 @@ def restaurant_ratings(restaurant):
     """Return a list of ratings, which are numbers from 1 to 5, of the
     restaurant based on the reviews of the restaurant."""
     # BEGIN Question 1
-    "*** REPLACE THIS LINE ***"
+    return map_and_filter(restaurant['reviews'], lambda x: x[1], lambda x: True)
     # END Question 1
 
 
@@ -103,11 +104,26 @@ def restaurant_ratings(restaurant):
 def restaurant_num_ratings(restaurant):
     """Return the number of ratings for restaurant."""
     # BEGIN Question 2
-    "*** REPLACE THIS LINE ***"
+    return len(restaurant_ratings(restaurant))
     # END Question 2
 
 def restaurant_mean_rating(restaurant):
     """Return the average rating for restaurant."""
     # BEGIN Question 2
-    "*** REPLACE THIS LINE ***"
+    return mean(restaurant_ratings(restaurant))
     # END Question 2
+
+def test():
+    """method to test basic functionality
+    
+    >>> soda_reviews = [make_review('Soda', 4.5),make_review('Soda', 4)]
+    >>> soda = make_restaurant('Soda', [127.0, 0.1],['Restaurants', 'Breakfast & Brunch'],1, soda_reviews)
+    >>> restaurant_ratings(soda)
+    [4.5, 4]
+    >>> woz_reviews = [make_review('Wozniak Lounge', 4),make_review('Wozniak Lounge', 3),make_review('Wozniak Lounge', 5)]
+    >>> woz = make_restaurant('Wozniak Lounge', [127.0, 0.1],['Restaurants', 'Pizza'],1, woz_reviews)
+    >>> restaurant_num_ratings(woz)
+    3
+    >>> restaurant_mean_rating(woz) # decimal value
+    4.0
+    """
