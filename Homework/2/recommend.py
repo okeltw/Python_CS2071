@@ -16,6 +16,14 @@ def find_closest(location, centroids):
 
     >>> find_closest([3.0, 4.0], [[0.0, 0.0], [2.0, 3.0], [4.0, 3.0], [5.0, 5.0]])
     [2.0, 3.0]
+    >>> find_closest([6, 1], [[1, 5], [3, 3]])
+    [3, 3]
+    >>> find_closest([1, 6], [[1, 5], [3, 3]])
+    [1, 5]
+    >>> find_closest([0, 0], [[-2, 0], [2, 0]])
+    [-2, 0]
+    >>> find_closest([0, 0], [[1000, 1000]])
+    [1000, 1000]
     """
     # BEGIN Question 3
     return min(centroids, key=lambda x: distance(location, x))
@@ -46,20 +54,41 @@ def group_by_centroid(restaurants, centroids):
     restaurants should appear once in the result, along with the other
     restaurants closest to the same centroid.
 
+    >>> r1 = make_restaurant('A', [-10, 2], [], 2, [make_review('A', 4),])
+    >>> r2 = make_restaurant('B', [-9, 1], [], 3, [make_review('B', 5),make_review('B', 3.5),])
+    >>> r3 = make_restaurant('C', [4, 2], [], 1, [make_review('C', 5) ])
+    >>> r4 = make_restaurant('D', [-2, 6], [], 4, [make_review('D', 2)])
+    >>> r5 = make_restaurant('E', [4, 2], [], 3.5, [make_review('E', 2.5), make_review('E', 3),])
+    >>> c1 = [0, 0]
+    >>> c2 = [3, 4]
+    >>> groups = group_by_centroid([r1, r2, r3, r4, r5], [c1, c2]) # correct grouping is  [[r1, r2], [r3, r4, r5]])
+    >>> [list (map (lambda r: r ['name'], c)) for c in groups]
+    [['A', 'B'], ['C', 'D', 'E']]
+
     """
     # BEGIN Question 4
     return map_and_filter(centroids, 
-        lambda z: map_and_filter(restaurants, 
+        lambda c: map_and_filter(restaurants, 
             lambda x: x, 
-            lambda y: find_closest(restaurant_location(y),centroids) == z),
-            lambda n: True)
+            lambda y: find_closest(restaurant_location(y),centroids) == c),
+            lambda z: True)
     # END Question 4
 
 
 def find_centroid(cluster):
-    """Return the centroid of the locations of the restaurants in cluster."""
+    """Return the centroid of the locations of the restaurants in cluster.
+
+    >>> cluster1 = [make_restaurant('A', [-3, -4], [], 3, [make_review('A', 2)]),make_restaurant('B', [1, -1],  [], 1, [make_review('B', 1)]),make_restaurant('C', [2, -4],  [], 1, [make_review('C', 5)])]
+    >>> find_centroid(cluster1) # should be a pair of decimals
+    [0.0, -3.0]
+    """
     # BEGIN Question 5
     "*** REPLACE THIS LINE ***"
+    #restaurant_location()
+    return [
+        mean(map_and_filter(cluster,lambda r: restaurant_location(r)[0],lambda x: True)),
+        mean(map_and_filter(cluster,lambda r: restaurant_location(r)[1],lambda x: True))
+        ]
     # END Question 5
 
 
@@ -161,34 +190,3 @@ def feature_set():
             restaurant_num_ratings,
             lambda r: restaurant_location(r)[0],
             lambda r: restaurant_location(r)[1]]
-
-def test():
-    """run some sample tests...
-
-    # test distance and find_closest...
-    >>> distance([0, 0], [3, 4]) # should be a decimal
-    5.0
-    >>> distance([6, 1], [6, 1]) 
-    0.0
-    >>> distance([-2, 7], [-3.5, 9])
-    2.5
-    >>> find_closest([6, 1], [[1, 5], [3, 3]])
-    [3, 3]
-    >>> find_closest([1, 6], [[1, 5], [3, 3]])
-    [1, 5]
-    >>> find_closest([0, 0], [[-2, 0], [2, 0]])
-    [-2, 0]
-    >>> find_closest([0, 0], [[1000, 1000]])
-    [1000, 1000]
-    >>> r1 = make_restaurant('A', [-10, 2], [], 2, [make_review('A', 4),])
-    >>> r2 = make_restaurant('B', [-9, 1], [], 3, [make_review('B', 5),make_review('B', 3.5),])
-    >>> r3 = make_restaurant('C', [4, 2], [], 1, [make_review('C', 5) ])
-    >>> r4 = make_restaurant('D', [-2, 6], [], 4, [make_review('D', 2)])
-    >>> r5 = make_restaurant('E', [4, 2], [], 3.5, [make_review('E', 2.5), make_review('E', 3),])
-    >>> c1 = [0, 0]
-    >>> c2 = [3, 4]
-    >>> groups = group_by_centroid([r1, r2, r3, r4, r5], [c1, c2]) # correct grouping is  [[r1, r2], [r3, r4, r5]])
-    >>> [list (map (lambda r: r ['name'], c)) for c in groups]
-    [['A', 'B'], ['C', 'D', 'E']]
-
-    """
