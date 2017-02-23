@@ -18,7 +18,7 @@ def find_closest(location, centroids):
     [2.0, 3.0]
     """
     # BEGIN Question 3
-    "*** REPLACE THIS LINE ***"
+    return min(centroids, key=lambda x: distance(location, x))
     # END Question 3
 
 
@@ -48,6 +48,11 @@ def group_by_centroid(restaurants, centroids):
     """
     # BEGIN Question 4
     "*** REPLACE THIS LINE ***"
+    #restaurant_location(restaurant) # use to group
+    #restuarant_name(restaurant) # list of lists of these to be returned
+    
+    # may work, need to return lists tho, this just lists em separately
+    #for c in cs: map_and_filter(rs, lambda x: x['name'],lambda y: find_closest(y['location'],cs) == c)
     # END Question 4
 
 
@@ -156,3 +161,24 @@ def feature_set():
             restaurant_num_ratings,
             lambda r: restaurant_location(r)[0],
             lambda r: restaurant_location(r)[1]]
+
+def test():
+    """run some sample tests...
+
+    # test distance and find_closest...
+    >>> distance([0, 0], [3, 4]) # should be a decimal
+    5.0
+    >>> distance([6, 1], [6, 1]) 
+    0.0
+    >>> distance([-2, 7], [-3.5, 9])
+    2.5
+    >>> find_closest([6, 1], [[1, 5], [3, 3]])
+    [3, 3]
+    >>> find_closest([1, 6], [[1, 5], [3, 3]])
+    [1, 5]
+    >>> find_closest([0, 0], [[-2, 0], [2, 0]])
+    [-2, 0]
+    >>> find_closest([0, 0], [[1000, 1000]])
+    [1000, 1000]
+
+    """
