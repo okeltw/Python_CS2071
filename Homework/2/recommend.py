@@ -25,9 +25,7 @@ def find_closest(location, centroids):
     >>> find_closest([0, 0], [[1000, 1000]])
     [1000, 1000]
     """
-    # BEGIN Question 3
     return min(centroids, key=lambda x: distance(location, x))
-    # END Question 3
 
 
 def group_by_first(pairs):
@@ -66,13 +64,30 @@ def group_by_centroid(restaurants, centroids):
     [['A', 'B'], ['C', 'D', 'E']]
 
     """
-    # BEGIN Question 4
-    return map_and_filter(centroids, 
-        lambda c: map_and_filter(restaurants, 
-            lambda x: x, 
-            lambda y: find_closest(restaurant_location(y),centroids) == c),
-            lambda z: True)
-    # END Question 4
+
+    """ Naive:
+    l = []
+    for r in restaurants:
+        c = find_closest(r['location'], centroids)
+        l += [[c,r]]
+
+    return group_by_first(l)
+    """
+    return group_by_first(
+        [(find_closest(r['location'], centroids), r) for r in restaurants]
+    )
+
+
+def test_group_by_centroid():
+    r1 = make_restaurant('A', [-10, 2], [], 2, [make_review('A', 4),])
+    r2 = make_restaurant('B', [-9, 1], [], 3, [make_review('B', 5),make_review('B', 3.5),])
+    r3 = make_restaurant('C', [4, 2], [], 1, [make_review('C', 5) ])
+    r4 = make_restaurant('D', [-2, 6], [], 4, [make_review('D', 2)])
+    r5 = make_restaurant('E', [4, 2], [], 3.5, [make_review('E', 2.5), make_review('E', 3),])
+    c1 = [0,0]
+    c2 = [3,4]
+    groups = group_by_centroid([r1, r2, r3, r4, r5], [c1, c2]) # correct grouping is  [[r1, r2], [r3, r4, r5]])
+    print([list (map (lambda r: r ['name'], c)) for c in groups])
 
 
 def find_centroid(cluster):
