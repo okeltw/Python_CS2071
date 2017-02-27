@@ -74,7 +74,7 @@ def group_by_centroid(restaurants, centroids):
     return group_by_first(l)
     """
     return group_by_first(
-        [(find_closest(r['location'], centroids), r) for r in restaurants]
+        [(find_closest(restaurant_location(r), centroids), r) for r in restaurants]
     )
 
 def find_centroid(cluster):
@@ -85,12 +85,8 @@ def find_centroid(cluster):
     [0.0, -3.0]
     """
     # BEGIN Question 5
-    "*** REPLACE THIS LINE ***"
-    #restaurant_location()
-    return [
-        mean(map_and_filter(cluster,lambda r: restaurant_location(r)[0],lambda x: True)),
-        mean(map_and_filter(cluster,lambda r: restaurant_location(r)[1],lambda x: True))
-        ]
+    return [ mean([restaurant_location(r)[0] for r in cluster]),
+             mean([restaurant_location(r)[1] for r in cluster])]
     # END Question 5
 
 
