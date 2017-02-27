@@ -77,19 +77,6 @@ def group_by_centroid(restaurants, centroids):
         [(find_closest(r['location'], centroids), r) for r in restaurants]
     )
 
-
-def test_group_by_centroid():
-    r1 = make_restaurant('A', [-10, 2], [], 2, [make_review('A', 4),])
-    r2 = make_restaurant('B', [-9, 1], [], 3, [make_review('B', 5),make_review('B', 3.5),])
-    r3 = make_restaurant('C', [4, 2], [], 1, [make_review('C', 5) ])
-    r4 = make_restaurant('D', [-2, 6], [], 4, [make_review('D', 2)])
-    r5 = make_restaurant('E', [4, 2], [], 3.5, [make_review('E', 2.5), make_review('E', 3),])
-    c1 = [0,0]
-    c2 = [3,4]
-    groups = group_by_centroid([r1, r2, r3, r4, r5], [c1, c2]) # correct grouping is  [[r1, r2], [r3, r4, r5]])
-    print([list (map (lambda r: r ['name'], c)) for c in groups])
-
-
 def find_centroid(cluster):
     """Return the centroid of the locations of the restaurants in cluster.
 
