@@ -256,9 +256,19 @@ def search(query, restaurants):
     Arguments:
     query -- A string
     restaurants -- A sequence of restaurants
+
+    >>> cluster = [make_restaurant('A', [0,0], 'Food', 0),
+    ...     make_restaurant('B', [1,1], 'Drink', 0),
+    ...     make_restaurant('C', [2,2], 'Food', 0),
+    ...     make_restaurant('D', [3,3], 'Drink', 0)]
+    >>> [restaurant_name(r) for r in search('Food', cluster)]
+    ['A', 'C']
+    >>> [restaurant_name(r) for r in search('Drink', cluster)]
+    ['B', 'D']
+
     """
     # BEGIN Question 10
-    "*** REPLACE THIS LINE ***"
+    return [restaurant for restaurant in restaurants if query in restaurant_categories(restaurant)]
     # END Question 10
 
 
