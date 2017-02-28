@@ -83,4 +83,4 @@ def mean(s):
     -0.5
     """
     assert len(s) > 0, 'cannot find mean of empty sequence'
-    return sum(s) / len(s)
+    return float(sum(s)) / len(s)

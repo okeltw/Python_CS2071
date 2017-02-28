@@ -86,7 +86,7 @@ def find_centroid(cluster):
     """
     # BEGIN Question 5
     return [ mean([restaurant_location(r)[0] for r in cluster]),
-             mean([restaurant_location(r)[1] for r in cluster])]
+             mean([restaurant_location(r)[1] for r in cluster]) ]
     # END Question 5
 
 
@@ -97,19 +97,19 @@ def k_means(restaurants, k, max_updates=100):
     # Select initial centroids randomly by choosing k different restaurants
     centroids = [restaurant_location(r) for r in sample(restaurants, k)]
 
+
     while old_centroids != centroids and n < max_updates:
         old_centroids = centroids
         # BEGIN Question 6
-        "*** REPLACE THIS LINE ***"
+        clusters = group_by_centroid(restaurants, centroids)
+        centroids = [find_centroid(cluster) for cluster in clusters]
         # END Question 6
         n += 1
     return centroids
 
-
 ################################
 # Phase 3: Supervised Learning #
 ################################
-
 
 def find_predictor(user, restaurants, feature_fn):
     """Return a rating predictor (a function from restaurants to ratings),
