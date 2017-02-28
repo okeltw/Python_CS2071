@@ -159,20 +159,6 @@ def find_predictor(user, restaurants, feature_fn):
 
     return predictor, r_squared
 
-user = make_user('Cheapskate', [
-    make_review('A', 2),
-    make_review('B', 5),
-    make_review('C', 2),
-    make_review('D', 5),
-    ])
-cluster = [
-    make_restaurant('A', [5, 2], [], 4, [
-    make_review('A', 5) ]),
-    make_restaurant('B', [3, 2], [], 2, [
-    make_review('B', 5) ]),
-    make_restaurant('C', [-2, 6], [], 4, [
-    make_review('C', 4) ]), ]
-fns = [restaurant_price, restaurant_mean_rating]
 def best_predictor(user, restaurants, feature_fns):
     """Find the feature within feature_fns that gives the highest R^2 value
     for predicting ratings by the user; return a predictor using that feature.
@@ -201,17 +187,22 @@ def best_predictor(user, restaurants, feature_fns):
     [2.0, 5.0, 2.0]
     """
     reviewed = user_reviewed_restaurants(user, restaurants)
-    # BEGIN Question 8
-
-    predictors = [find_predictor(user, cluster, fn) for fn in fns]
+    predictors = [find_predictor(user, reviewed, fn) for fn in feature_fns]
     best_predictor = max(predictors, key=lambda predictor: predictor[1])[0]
-
+    # BEGIN Question 8
     def predictor(restaurant):
         return best_predictor(restaurant)
 
     return predictor
     # END Question 8
 
+
+ALL_RESTAURANTS = [make_restaurant('A', [1, 2], [], 4,
+                    [make_review('A', 4), make_review('A', 4) ]),
+                    make_restaurant('B', [4, 2], [], 3, [make_review('B', 5)]),
+                    make_restaurant('C', [-2, 6], [], 4, [make_review('C', 2) ]),
+                    make_restaurant('D', [4, 4], [], 3.5, [
+                    make_review('D', 2.5), make_review('D', 3.5), ]),]
 
 def rate_all(user, restaurants, feature_fns):
     """Return the predicted ratings of restaurants by user using the best
@@ -221,11 +212,41 @@ def rate_all(user, restaurants, feature_fns):
     user -- A user
     restaurants -- A list of restaurants
     feature_fns -- A sequence of feature functions
+
+    >>> user = make_user('Mr. Mean Rating Minus One',
+    ...    [make_review('A', 3),make_review('B', 4),
+    ...     make_review('C', 1),])
+    >>> cluster = [make_restaurant('A', [1, 2], [], 4,
+    ...    [make_review('A', 4), make_review('A', 4) ]),
+    ...    make_restaurant('B', [4, 2], [], 3, [make_review('B', 5)]),
+    ...    make_restaurant('C', [-2, 6], [], 4, [make_review('C', 2) ]),
+    ...    make_restaurant('D', [4, 4], [], 3.5, [
+    ...    make_review('D', 2.5), make_review('D', 3.5), ]),]
+    >>> ALL_RESTAURANTS = cluster
+    >>> to_rate = cluster[2:]
+    >>> fns = [restaurant_price, restaurant_mean_rating]
+    >>> ratings = rate_all(user, to_rate, fns)
+    >>> type(ratings)
+    <class 'dict'>
+    >>> len(ratings)
+    2
+    >>> ratings['C']
+    1
+    >>> round(ratings['D'], 5)
+    2.0
     """
     predictor = best_predictor(user, ALL_RESTAURANTS, feature_fns)
     reviewed = user_reviewed_restaurants(user, restaurants)
     # BEGIN Question 9
-    "*** REPLACE THIS LINE ***"
+    ratings = {}
+    for restaurant in restaurants:
+        name = restaurant_name(restaurant)
+        if restaurant in reviewed:
+            ratings[name] = user_rating(user, name)
+        else:
+            ratings[name] = predictor(restaurant)
+
+    return ratings
     # END Question 9
 
 
