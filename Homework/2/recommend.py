@@ -120,6 +120,22 @@ def find_predictor(user, restaurants, feature_fn):
     user -- A user
     restaurants -- A sequence of restaurants
     feature_fn -- A function that takes a restaurant and returns a number
+
+    >>> user = make_user('John D.', [
+    ...     make_review('A', 1),
+    ...     make_review('B', 5),
+    ...     make_review('C', 2),
+    ...     make_review('D', 2.5),])
+    >>> restaurant = make_restaurant('New', [-10, 2], [], 2, [make_review('New', 4),])
+    >>> cluster = [make_restaurant('B', [4, 2], [], 1, [make_review('B', 5)]),
+    ...     make_restaurant('C', [-2, 6], [], 4, [make_review('C', 2)]),
+    ...     make_restaurant('D', [4, 2], [], 3.5, [make_review('D', 2.5),
+    ...         make_review('D', 3),]),]
+    >>> pred, r_squared = find_predictor(user, cluster, restaurant_mean_rating)
+    >>> round(pred(restaurant), 5)
+    3.9359
+    >>> round(r_squared, 5)
+    0.99256
     """
     reviews_by_user = {review_restaurant_name(review): review_rating(review)
                        for review in user_reviews(user).values()}
@@ -127,9 +143,15 @@ def find_predictor(user, restaurants, feature_fn):
     xs = [feature_fn(r) for r in restaurants]
     ys = [reviews_by_user[restaurant_name(r)] for r in restaurants]
 
+
     # BEGIN Question 7
-    "*** REPLACE THIS LINE ***"
-    b, a, r_squared = 0, 0, 0  # REPLACE THIS LINE WITH YOUR SOLUTION
+    xys = zip(xs, ys)
+    Sxx = sum([(x - mean(xs))**2 for x in xs])
+    Syy = sum([(y - mean(ys))**2 for y in ys])
+    Sxy = sum([(x - mean(xs))*(y - mean(ys)) for (x,y) in xys])
+    b = Sxy/Sxx
+    a = mean(ys) - b*mean(xs)
+    r_squared = Sxy**2/(Sxx*Syy)
     # END Question 7
 
     def predictor(restaurant):
@@ -137,7 +159,20 @@ def find_predictor(user, restaurants, feature_fn):
 
     return predictor, r_squared
 
-
+user = make_user('Cheapskate', [
+    make_review('A', 2),
+    make_review('B', 5),
+    make_review('C', 2),
+    make_review('D', 5),
+    ])
+cluster = [
+    make_restaurant('A', [5, 2], [], 4, [
+    make_review('A', 5) ]),
+    make_restaurant('B', [3, 2], [], 2, [
+    make_review('B', 5) ]),
+    make_restaurant('C', [-2, 6], [], 4, [
+    make_review('C', 4) ]), ]
+fns = [restaurant_price, restaurant_mean_rating]
 def best_predictor(user, restaurants, feature_fns):
     """Find the feature within feature_fns that gives the highest R^2 value
     for predicting ratings by the user; return a predictor using that feature.
@@ -146,10 +181,35 @@ def best_predictor(user, restaurants, feature_fns):
     user -- A user
     restaurants -- A list of restaurants
     feature_fns -- A sequence of functions that each takes a restaurant
+
+    >>> user = make_user('Cheapskate', [
+    ...     make_review('A', 2),
+    ...     make_review('B', 5),
+    ...     make_review('C', 2),
+    ...     make_review('D', 5),
+    ...    ])
+    >>> cluster = [
+    ...    make_restaurant('A', [5, 2], [], 4, [
+    ...    make_review('A', 5) ]),
+    ...    make_restaurant('B', [3, 2], [], 2, [
+    ...    make_review('B', 5) ]),
+    ...    make_restaurant('C', [-2, 6], [], 4, [
+    ...    make_review('C', 4) ]), ]
+    >>> fns = [restaurant_price, restaurant_mean_rating]
+    >>> pred = best_predictor(user, cluster, fns)
+    >>> print([round(pred(r), 5) for r in cluster])
+    [2.0, 5.0, 2.0]
     """
     reviewed = user_reviewed_restaurants(user, restaurants)
     # BEGIN Question 8
-    "*** REPLACE THIS LINE ***"
+
+    predictors = [find_predictor(user, cluster, fn) for fn in fns]
+    best_predictor = max(predictors, key=lambda predictor: predictor[1])[0]
+
+    def predictor(restaurant):
+        return best_predictor(restaurant)
+
+    return predictor
     # END Question 8
 
 
