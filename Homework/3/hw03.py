@@ -11,7 +11,12 @@ def is_sorted(lst):
     >>> is_sorted(lst3)
     True
     """
-    "*** YOUR CODE HERE ***"
+    if is_empty(rest(lst)):
+        return True
+    elif first(lst) > first(rest(lst)):
+        return False
+    else:
+        return is_sorted(rest(lst))
 
 
 def interleave(s0, s1):
@@ -27,7 +32,15 @@ def interleave(s0, s1):
     >>> print_link(interleave(odds, odds))
     1 1 3 3
     """
-    "*** YOUR CODE HERE ***"
+    if is_empty(s0):
+        return s1
+
+    if is_empty(s1):
+        return s0
+
+    return link(first(s0),
+            link(first(s1),
+             interleave(rest(s0), rest(s1))))
 
 
 def height(t):
@@ -49,7 +62,14 @@ def height(t):
     2
     """
     "*** YOUR CODE HERE ***"
+    if is_leaf(t):
+        return 0
 
+    lst = []
+    for b in branches(t):
+        lst += [1 + height(b)]
+
+    return max(lst)
 
 def sprout_leaves(t, vals):
     """Sprout new leaves containing the data in vals at each leaf in
@@ -85,7 +105,16 @@ def sprout_leaves(t, vals):
           2
     """
     "*** YOUR CODE HERE ***"
-
+    if is_leaf(t):
+        new_vals = []
+        for i in vals:
+            new_vals += [tree(i)]
+        return tree(root(t), new_vals)
+    else:
+        new_branches = []
+        for b in branches(t):
+            new_branches += tree(sprout_leaves(b, vals))
+        return tree(root(t), new_branches)
 
 ###################
 # Linked List ADT #
@@ -130,6 +159,8 @@ def print_link(s):
         s = rest(s)
     print(line)
 
+def is_empty(lst):
+    return lst == empty
 
 ############
 # Tree ADT #
