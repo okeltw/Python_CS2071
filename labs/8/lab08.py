@@ -11,7 +11,7 @@ class Player(object):
     def look(self):
         self.place.look()
 
-  
+
     def go_to(self, direction):
         """Go to direction if it's among the exits of player's current place.
         >>> swift= Place('Swift Hall', 'You are at Swift Hall', [], [])
@@ -29,7 +29,7 @@ class Player(object):
         >>> me.go_to('Swift Hall')
         You are at Swift Hall
         """
-        "*** YOUR CODE HERE ***"
+        self.place = self.place.exit_to(direction)
 
     def talk_to(self, person):
         """Talk to person if person is at player's current place.
@@ -45,7 +45,7 @@ class Player(object):
         """
         if type(person) != str:
             print('Person has to be a string.')
-        return None   # Replace this line
+        return self.place.characters[person].talk()   # Replace this line
 
     def take(self, thing):
         """Take a thing if thing is at player's current place
@@ -221,7 +221,7 @@ game_store.add_exits([nippert])
 
 # Game Player:
 # The Player should start at tuc.
-me = None
+me = Player('Taylor', tuc)
 
 
 ############################################
