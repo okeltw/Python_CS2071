@@ -45,7 +45,11 @@ class Player(object):
         """
         if type(person) != str:
             print('Person has to be a string.')
-        return self.place.characters[person].talk()   # Replace this line
+        elif person not in self.place.characters:
+            print(person, "is not here.")
+        else:
+            human = self.place.characters[person]
+            print(human.name, "says:", human.talk())
 
     def take(self, thing):
         """Take a thing if thing is at player's current place
@@ -67,7 +71,11 @@ class Player(object):
         """
         if type(thing) != str:
             print('Thing should be a string.')
-        return None   # Replace this line
+        elif thing not in self.place.things:
+            print(thing, "is not here.")
+        else:
+            me.backpack.append(self.place.take(thing))
+            print(self.name, "takes the", thing)
 
     def check_backpack(self):
         """Print each item with its description and return a list of item names.
