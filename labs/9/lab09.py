@@ -10,7 +10,9 @@ def link_to_list(link):
     >>> link_to_list(Link.empty)
     []
     """
-    "*** YOUR CODE HERE ***"
+    if link is Link.empty:
+        return []
+    return [link.first] + link_to_list(link.rest)
 
 
 # Q3
@@ -21,7 +23,9 @@ def list_to_link(lst):
     >>> print_link(link)
     <1 2 3>
     """
-    "*** YOUR CODE HERE ***"
+    if not lst:
+        return Link.empty
+    return Link(lst[0], list_to_link(lst[1:]))
 
 
 # Q4
@@ -37,7 +41,17 @@ def deep_map_mut(fn, link):
     >>> print_link(link1)
     <9 <16> 25 36>
     """
-    "*** YOUR CODE HERE ***"
+    if link is Link.empty:
+        #bootstrap
+        return
+    elif isinstance(link.first, Link):
+        #embedded list, recurse over this branch then continue
+        deep_map_mut(fn, link.first)
+    else:
+        #apply mutator
+        link.first = fn(link.first)
+    #recurse down the list
+    deep_map_mut(fn, link.rest)
 
 
 # Q5
@@ -56,7 +70,13 @@ def insert(link, value, index):
     ...
     IndexError
     """
-    "*** YOUR CODE HERE ***"
+    if index == 0:
+        link.rest = Link(link.first, link.rest)
+        link.first = value
+        return
+    elif index > 0 and link.rest is Link.empty:
+        raise IndexError
+    insert(link.rest, value, index-1)
 
 
 # Linked List Class
